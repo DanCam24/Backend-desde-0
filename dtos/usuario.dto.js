@@ -3,14 +3,16 @@ function crearUsuarioDTO(data) {
     id: data.id,
     nombre: data.nombre,
     email: data.email,
-    tipoCuenta: data.tipoCuenta || "AHORROS"
+    tipoCuenta: data.tipoCuenta || "AHORROS",
+    saldo: 0,
   };
 }
 
 function actualizarUsuarioDTO(data) {
   return {
-    ...(data.nombre && { nombre: data.nombre }),
-    ...(data.email && { email: data.email }),
+    ...(data.nombre !== undefined && { nombre: data.nombre }),
+    ...(data.email !== undefined && { email: data.email }),
+    ...(data.tipoCuenta !== undefined && { tipoCuenta: data.tipoCuenta })
   };
 }
 

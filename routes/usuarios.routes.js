@@ -14,6 +14,7 @@ const {
 } = require("../controllers/usuarios.controller");
 const validarConsignacion = require("../middlewares/validarConsignacion");
 const validarRetiro = require("../middlewares/validarRetiro");
+const validarActualizacionUsuario = require("../middlewares/validarActualizacionUsuario");
 
 router.get("/", auth, obtenerUsuarios);
 
@@ -21,7 +22,7 @@ router.get("/:id", auth, obtenerUsuarioPorId);
 
 router.post("/", auth, validarUsuario, crearUsuario);
 
-router.put("/:id", auth, actualizarUsuario);
+router.put("/:id", auth, validarActualizacionUsuario, actualizarUsuario);
 
 router.delete("/:id", auth, eliminarUsuario);
 

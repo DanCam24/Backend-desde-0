@@ -23,7 +23,6 @@ function crear(usuario) {
       id: usuario.id,
     });
   }
-  usuario.saldo = 0;
   usuarios.push(usuario);
   return usuario;
 }
