@@ -2,14 +2,14 @@ const AppError = require("../errors/AppError");
 
 function validarUsuario(req, res, next) {
   const { id, nombre, email } = req.body;
-  if (!id || !nombre || !email) {
+  if (id === undefined || nombre === undefined || email === undefined) {
     return next(
       new AppError(400, "Los campos id, nombre y email son obligatorios")
     );
   }
-  if (typeof id !== "number") {
+  if (!Number.isInteger(id)) {
     return next(
-      new AppError(400, "El ID debe ser un número", {
+      new AppError(400, "El ID debe ser un número entero", {
         campo: "id",
       })
     );
@@ -21,10 +21,18 @@ function validarUsuario(req, res, next) {
       })
     );
   }
-  if (nombre.length < 3) {
+  if (nombre.trim().length < 3) {
     return next(
       new AppError(422, "El nombre debe tener mínimo 3 caracteres", {
+        campo: "nombre",
         minimo: 3,
+      })
+    );
+  }
+  if (typeof email !== "string") {
+    return next(
+      new AppError(400, "El email debe ser texto", {
+        campo: "email",
       })
     );
   }

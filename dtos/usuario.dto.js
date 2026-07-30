@@ -3,6 +3,7 @@ function crearUsuarioDTO(data) {
     id: data.id,
     nombre: data.nombre,
     email: data.email,
+    tipoCuenta: data.tipoCuenta || "AHORROS"
   };
 }
 
