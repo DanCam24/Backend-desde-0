@@ -1,5 +1,6 @@
 const usuarios = require("../data/usuarios");
 const AppError = require("../errors/AppError");
+const movimientosService = require("./movimientos.service");
 
 function obtenerTodos() {
   return usuarios;
@@ -51,6 +52,11 @@ function consultarSaldo(id) {
 function consignar(id, valor) {
   const usuario = obtenerPorId(id);
   usuario.saldo += valor;
+  movimientosService.crearMovimiento({
+    usuarioId: usuario.id,
+    tipo: "CONSIGNACION",
+    valor,
+  });
   return usuario;
 }
 
@@ -63,6 +69,11 @@ function retirar(id, valor) {
     });
   }
   usuario.saldo -= valor;
+  movimientosService.crearMovimiento({
+    usuarioId: usuario.id,
+    tipo: "RETIRO",
+    valor,
+  });
   return usuario;
 }
 
