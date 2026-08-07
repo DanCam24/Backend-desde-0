@@ -1,5 +1,5 @@
 const pool = require("./config/database");
-
+// para probar node test-db.js
 async function probarConexion() {
   try {
     const resultado = await pool.query("SELECT NOW()");

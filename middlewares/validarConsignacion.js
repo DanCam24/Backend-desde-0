@@ -2,13 +2,9 @@ const AppError = require("../errors/AppError");
 
 function validarConsignacion(req, res, next) {
   const { valor } = req.body;
-
   if (valor === undefined) {
-    return next(
-      new AppError(400, "El campo valor es obligatorio")
-    );
+    return next(new AppError(400, "El campo valor es obligatorio"));
   }
-
   if (typeof valor !== "number") {
     return next(
       new AppError(400, "El valor debe ser un número", {
@@ -16,7 +12,6 @@ function validarConsignacion(req, res, next) {
       })
     );
   }
-
   if (!Number.isFinite(valor)) {
     return next(
       new AppError(400, "El valor debe ser un número válido", {
@@ -24,7 +19,6 @@ function validarConsignacion(req, res, next) {
       })
     );
   }
-
   if (valor <= 0) {
     return next(
       new AppError(422, "El valor debe ser mayor que cero", {
@@ -33,7 +27,6 @@ function validarConsignacion(req, res, next) {
       })
     );
   }
-
   next();
 }
 

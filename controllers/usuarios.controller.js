@@ -6,8 +6,17 @@ const usuariosService = require("../services/usuarios.service");
 
 async function obtenerUsuarios(req, res, next) {
   try {
-    const usuarios = await usuariosService.obtenerTodos();
-    res.status(200).json(usuarios);
+    const { page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+    const usuarios = await usuariosService.obtenerTodos(
+      Number(limit),
+      Number(offset)
+    );
+    res.status(200).json({
+      pagina: Number(page),
+      limite: Number(limit),
+      usuarios,
+    });
   } catch (error) {
     next(error);
   }
@@ -58,7 +67,7 @@ async function eliminarUsuario(req, res, next) {
     const { id } = req.params;
     await usuariosService.eliminar(id);
     res.status(200).json({
-      mensaje: "Usuario eliminado",
+      mensaje: "Usuario desactivado correctamente",
     });
   } catch (error) {
     next(error);

@@ -2,7 +2,6 @@ const AppError = require("../errors/AppError");
 
 function validarId(req, res, next) {
   const { id } = req.params;
-
   if (!Number.isInteger(Number(id))) {
     return next(
       new AppError(400, "El id debe ser numérico", {
@@ -11,7 +10,6 @@ function validarId(req, res, next) {
       })
     );
   }
-
   next();
 }
 

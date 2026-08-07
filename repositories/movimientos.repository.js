@@ -1,12 +1,14 @@
 const pool = require("../config/database");
 
-async function obtenerTodos() {
+async function obtenerTodos(limit, offset) {
   const result = await pool.query(
     `
     SELECT *
     FROM movimientos
     ORDER BY fecha DESC
-    `
+    LIMIT $1 OFFSET $2
+    `,
+    [limit, offset]
   );
   return result.rows;
 }
@@ -14,14 +16,13 @@ async function obtenerTodos() {
 async function crear(movimiento, client = pool) {
   const result = await client.query(
     `
-  INSERT INTO movimientos
-  (usuario_id,tipo,valor)
-  VALUES($1,$2,$3)
-  RETURNING *
-  `,
+    INSERT INTO movimientos
+    (usuario_id,tipo,valor)
+    VALUES($1,$2,$3)
+    RETURNING *
+    `,
     [movimiento.usuarioId, movimiento.tipo, movimiento.valor]
   );
-
   return result.rows[0];
 }
 

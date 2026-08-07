@@ -12,8 +12,17 @@ async function obtenerMovimientosUsuario(req, res, next) {
 
 async function obtenerTodos(req, res, next) {
   try {
-    const movimientos = await movimientosService.obtenerTodos();
-    res.status(200).json(movimientos);
+    const { page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+    const movimientos = await movimientosService.obtenerTodos(
+      Number(limit),
+      Number(offset)
+    );
+    res.status(200).json({
+      pagina: Number(page),
+      limite: Number(limit),
+      movimientos,
+    });
   } catch (error) {
     next(error);
   }

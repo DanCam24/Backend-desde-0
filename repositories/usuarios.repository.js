@@ -1,7 +1,16 @@
 const pool = require("../config/database");
 
-async function obtenerTodos() {
-  const result = await pool.query("SELECT * FROM usuarios ORDER BY id");
+async function obtenerTodos(limit, offset) {
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM usuarios
+    WHERE activo=true
+    ORDER BY id
+    LIMIT $1 OFFSET $2
+    `,
+    [limit, offset]
+  );
   return result.rows;
 }
 
@@ -10,7 +19,8 @@ async function obtenerPorId(id) {
     `
     SELECT *
     FROM usuarios
-    WHERE id = $1
+    WHERE id=$1
+    AND activo=true
     `,
     [id]
   );
@@ -54,7 +64,8 @@ async function actualizar(id, datos) {
 async function eliminar(id) {
   const result = await pool.query(
     `
-    DELETE FROM usuarios
+    UPDATE usuarios
+    SET activo=false
     WHERE id=$1
     RETURNING *
     `,
@@ -84,27 +95,10 @@ async function actualizarSaldo(id, saldo, client = pool) {
     WHERE id=$2
     RETURNING *
     `,
-    [
-      saldo,
-      id
-    ]
+    [saldo, id]
   );
-
   return result.rows[0];
 }
-
-// async function actualizarSaldo(id, saldo, client) {
-//   const result = await client.query(
-//     `
-//     UPDATE usuarios
-//     SET saldo=$1
-//     WHERE id=$2
-//     RETURNING *
-//     `,
-//     [saldo, id]
-//   );
-//   return result.rows[0];
-// }
 
 module.exports = {
   obtenerTodos,

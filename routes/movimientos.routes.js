@@ -8,7 +8,6 @@ const {
 } = require("../controllers/movimientos.controller");
 
 router.get("/", auth, obtenerTodos);
-
 router.get("/usuario/:id", auth, validarId, obtenerMovimientosUsuario);
 
 module.exports = router;

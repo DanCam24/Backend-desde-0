@@ -3,8 +3,8 @@ const AppError = require("../errors/AppError");
 const movimientosRepository = require("../repositories/movimientos.repository");
 const { executeTransaction } = require("../database/transaction");
 
-async function obtenerTodos() {
-  return await usuariosRepository.obtenerTodos();
+async function obtenerTodos(limit, offset) {
+  return await usuariosRepository.obtenerTodos(limit, offset);
 }
 
 async function obtenerPorId(id) {
@@ -36,15 +36,11 @@ async function eliminar(id) {
   }
   return eliminado;
 }
-
 async function consultarSaldo(id) {
   const usuario = await obtenerPorId(id);
-
   return usuario.saldo;
 }
 
-// TEMPORAL
-// Luego estos dos métodos los pasaremos a transacciones ACID
 async function consignar(id, valor) {
   return executeTransaction(async (client) => {
     const usuario = await usuariosRepository.obtenerPorIdConBloqueo(id, client);
@@ -53,6 +49,7 @@ async function consignar(id, valor) {
     }
     const nuevoSaldo = Number(usuario.saldo) + valor;
     await usuariosRepository.actualizarSaldo(id, nuevoSaldo, client);
+    // throw new Error("Error de prueba");// para probar la transacción
     await movimientosRepository.crear(
       {
         usuarioId: id,
@@ -68,39 +65,21 @@ async function consignar(id, valor) {
 }
 
 async function retirar(id, valor) {
-
   return executeTransaction(async (client) => {
-
-    const usuario =
-      await usuariosRepository.obtenerPorIdConBloqueo(id, client);
-
-
+    const usuario = await usuariosRepository.obtenerPorIdConBloqueo(id, client);
     if (!usuario) {
       throw new AppError(404, "Usuario no encontrado", {
         id,
       });
     }
-
-
     if (Number(usuario.saldo) < valor) {
       throw new AppError(422, "Saldo insuficiente", {
         saldoDisponible: usuario.saldo,
         valorSolicitado: valor,
       });
     }
-
-
-    const nuevoSaldo =
-      Number(usuario.saldo) - valor;
-
-
-    await usuariosRepository.actualizarSaldo(
-      id,
-      nuevoSaldo,
-      client
-    );
-
-
+    const nuevoSaldo = Number(usuario.saldo) - valor;
+    await usuariosRepository.actualizarSaldo(id, nuevoSaldo, client);
     await movimientosRepository.crear(
       {
         usuarioId: id,
@@ -109,14 +88,10 @@ async function retirar(id, valor) {
       },
       client
     );
-
-
     return {
       saldo: nuevoSaldo,
     };
-
   });
-
 }
 
 module.exports = {

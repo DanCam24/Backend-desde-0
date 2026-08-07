@@ -1,5 +1,10 @@
-function errorHandler(error, req, res, next) {
+function obtenerTipoError(status) {
+  if (status >= 500) return "Internal Server Error";
+  if (status >= 400) return "Client Error";
+  return "Success";
+}
 
+function errorHandler(error, req, res, next) {
   if (error.code === "23505") {
     return res.status(409).json({
       status: 409,
@@ -9,9 +14,7 @@ function errorHandler(error, req, res, next) {
       path: req.originalUrl,
     });
   }
-
   const status = error.status || 500;
-
   res.status(status).json({
     status,
     error: obtenerTipoError(status),
@@ -21,3 +24,5 @@ function errorHandler(error, req, res, next) {
     details: error.details || null,
   });
 }
+
+module.exports = errorHandler;
