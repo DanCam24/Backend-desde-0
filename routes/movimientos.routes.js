@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middlewares/auth");
+const validarId = require("../middlewares/validarId");
 const {
   obtenerMovimientosUsuario,
   obtenerTodos,
@@ -8,6 +9,6 @@ const {
 
 router.get("/", auth, obtenerTodos);
 
-router.get("/usuario/:id", auth, obtenerMovimientosUsuario);
+router.get("/usuario/:id", auth, validarId, obtenerMovimientosUsuario);
 
 module.exports = router;

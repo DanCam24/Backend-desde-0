@@ -1,13 +1,14 @@
-const usuarios = require("../data/usuarios");
+const usuariosRepository = require("../repositories/usuarios.repository");
 const AppError = require("../errors/AppError");
-const movimientosService = require("./movimientos.service");
+const movimientosRepository = require("../repositories/movimientos.repository");
+const { executeTransaction } = require("../database/transaction");
 
-function obtenerTodos() {
-  return usuarios;
+async function obtenerTodos() {
+  return await usuariosRepository.obtenerTodos();
 }
 
-function obtenerPorId(id) {
-  const usuario = usuarios.find((usuario) => usuario.id == id);
+async function obtenerPorId(id) {
+  const usuario = await usuariosRepository.obtenerPorId(id);
   if (!usuario) {
     throw new AppError(404, "Usuario no encontrado", {
       id,
@@ -16,64 +17,106 @@ function obtenerPorId(id) {
   return usuario;
 }
 
-function crear(usuario) {
-  const existe = usuarios.some((u) => u.id === usuario.id);
-  if (existe) {
-    throw new AppError(409, "El ID ya existe", {
-      id: usuario.id,
-    });
-  }
-  usuarios.push(usuario);
-  return usuario;
+async function crear(usuario) {
+  const usuarioCreado = await usuariosRepository.crear(usuario);
+  return usuarioCreado;
 }
 
-function actualizar(id, datosNuevos) {
-  const usuario = obtenerPorId(id);
-  Object.assign(usuario, datosNuevos);
-  return usuario;
+async function actualizar(id, datosNuevos) {
+  await obtenerPorId(id);
+  return await usuariosRepository.actualizar(id, datosNuevos);
 }
 
-function eliminar(id) {
-  const indice = usuarios.findIndex((usuario) => usuario.id == id);
-  if (indice === -1) {
+async function eliminar(id) {
+  const eliminado = await usuariosRepository.eliminar(id);
+  if (!eliminado) {
     throw new AppError(404, "Usuario no encontrado", {
       id,
     });
   }
-  usuarios.splice(indice, 1);
+  return eliminado;
 }
 
-function consultarSaldo(id) {
-  const usuario = obtenerPorId(id);
+async function consultarSaldo(id) {
+  const usuario = await obtenerPorId(id);
+
   return usuario.saldo;
 }
 
-function consignar(id, valor) {
-  const usuario = obtenerPorId(id);
-  usuario.saldo += valor;
-  movimientosService.crearMovimiento({
-    usuarioId: usuario.id,
-    tipo: "CONSIGNACION",
-    valor,
+// TEMPORAL
+// Luego estos dos métodos los pasaremos a transacciones ACID
+async function consignar(id, valor) {
+  return executeTransaction(async (client) => {
+    const usuario = await usuariosRepository.obtenerPorIdConBloqueo(id, client);
+    if (!usuario) {
+      throw new AppError(404, "Usuario no encontrado");
+    }
+    const nuevoSaldo = Number(usuario.saldo) + valor;
+    await usuariosRepository.actualizarSaldo(id, nuevoSaldo, client);
+    await movimientosRepository.crear(
+      {
+        usuarioId: id,
+        tipo: "CONSIGNACION",
+        valor,
+      },
+      client
+    );
+    return {
+      saldo: nuevoSaldo,
+    };
   });
-  return usuario;
 }
 
-function retirar(id, valor) {
-  const usuario = obtenerPorId(id);
-  if (usuario.saldo < valor) {
-    throw new AppError(422, "Saldo insuficiente", {
-      saldoDisponible: usuario.saldo,
-      valorSolicitado: valor,
-    });
-  }
-  usuario.saldo -= valor;
-  movimientosService.crearMovimiento({
-    usuarioId: usuario.id,
-    tipo: "RETIRO",
-    valor,
+async function retirar(id, valor) {
+
+  return executeTransaction(async (client) => {
+
+    const usuario =
+      await usuariosRepository.obtenerPorIdConBloqueo(id, client);
+
+
+    if (!usuario) {
+      throw new AppError(404, "Usuario no encontrado", {
+        id,
+      });
+    }
+
+
+    if (Number(usuario.saldo) < valor) {
+      throw new AppError(422, "Saldo insuficiente", {
+        saldoDisponible: usuario.saldo,
+        valorSolicitado: valor,
+      });
+    }
+
+
+    const nuevoSaldo =
+      Number(usuario.saldo) - valor;
+
+
+    await usuariosRepository.actualizarSaldo(
+      id,
+      nuevoSaldo,
+      client
+    );
+
+
+    await movimientosRepository.crear(
+      {
+        usuarioId: id,
+        tipo: "RETIRO",
+        valor,
+      },
+      client
+    );
+
+
+    return {
+      saldo: nuevoSaldo,
+    };
+
   });
-  return usuario;
+
 }
 
 module.exports = {

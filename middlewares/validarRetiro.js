@@ -2,11 +2,8 @@ const AppError = require("../errors/AppError");
 
 function validarRetiro(req, res, next) {
   const { valor } = req.body;
-
   if (valor === undefined) {
-    return next(
-      new AppError(400, "El campo valor es obligatorio")
-    );
+    return next(new AppError(400, "El campo valor es obligatorio"));
   }
 
   if (typeof valor !== "number") {
@@ -33,7 +30,6 @@ function validarRetiro(req, res, next) {
       })
     );
   }
-
   next();
 }
 

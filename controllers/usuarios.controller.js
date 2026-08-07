@@ -4,29 +4,29 @@ const {
 } = require("../dtos/usuario.dto");
 const usuariosService = require("../services/usuarios.service");
 
-function obtenerUsuarios(req, res, next) {
+async function obtenerUsuarios(req, res, next) {
   try {
-    const usuarios = usuariosService.obtenerTodos();
+    const usuarios = await usuariosService.obtenerTodos();
     res.status(200).json(usuarios);
   } catch (error) {
     next(error);
   }
 }
 
-function obtenerUsuarioPorId(req, res, next) {
+async function obtenerUsuarioPorId(req, res, next) {
   try {
     const { id } = req.params;
-    const usuario = usuariosService.obtenerPorId(id);
+    const usuario = await usuariosService.obtenerPorId(id);
     res.status(200).json(usuario);
   } catch (error) {
     next(error);
   }
 }
 
-function crearUsuario(req, res, next) {
+async function crearUsuario(req, res, next) {
   try {
     const datosUsuario = crearUsuarioDTO(req.body);
-    const usuarioCreado = usuariosService.crear(datosUsuario);
+    const usuarioCreado = await usuariosService.crear(datosUsuario);
     res.status(201).json({
       mensaje: "Usuario creado",
       usuario: usuarioCreado,
@@ -36,11 +36,14 @@ function crearUsuario(req, res, next) {
   }
 }
 
-function actualizarUsuario(req, res, next) {
+async function actualizarUsuario(req, res, next) {
   try {
     const { id } = req.params;
     const datosNuevos = actualizarUsuarioDTO(req.body);
-    const usuarioActualizado = usuariosService.actualizar(id, datosNuevos);
+    const usuarioActualizado = await usuariosService.actualizar(
+      id,
+      datosNuevos
+    );
     res.status(200).json({
       mensaje: "Usuario actualizado",
       usuario: usuarioActualizado,
@@ -50,10 +53,10 @@ function actualizarUsuario(req, res, next) {
   }
 }
 
-function eliminarUsuario(req, res, next) {
+async function eliminarUsuario(req, res, next) {
   try {
     const { id } = req.params;
-    usuariosService.eliminar(id);
+    await usuariosService.eliminar(id);
     res.status(200).json({
       mensaje: "Usuario eliminado",
     });
@@ -62,10 +65,10 @@ function eliminarUsuario(req, res, next) {
   }
 }
 
-function consultarSaldo(req, res, next) {
+async function consultarSaldo(req, res, next) {
   try {
     const { id } = req.params;
-    const saldo = usuariosService.consultarSaldo(id);
+    const saldo = await usuariosService.consultarSaldo(id);
     res.status(200).json({
       saldo,
     });
@@ -74,28 +77,28 @@ function consultarSaldo(req, res, next) {
   }
 }
 
-function consignar(req, res, next) {
+async function consignar(req, res, next) {
   try {
     const { id } = req.params;
     const { valor } = req.body;
-    const usuario = usuariosService.consignar(id, valor);
+    const resultado = await usuariosService.consignar(id, valor);
     res.status(200).json({
       mensaje: "Consignación realizada",
-      saldo: usuario.saldo,
+      saldo: resultado.saldo,
     });
   } catch (error) {
     next(error);
   }
 }
 
-function retirar(req, res, next) {
+async function retirar(req, res, next) {
   try {
     const { id } = req.params;
     const { valor } = req.body;
-    const usuario = usuariosService.retirar(id, valor);
+    const resultado = await usuariosService.retirar(id, valor);
     res.status(200).json({
       mensaje: "Retiro realizado",
-      saldo: usuario.saldo,
+      saldo: resultado.saldo,
     });
   } catch (error) {
     next(error);

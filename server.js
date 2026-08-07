@@ -1,10 +1,10 @@
 const express = require("express");
 const usuariosRoutes = require("./routes/usuarios.routes");
 const movimientosRoutes = require("./routes/movimientos.routes");
-
 const app = express();
 const PORT = 3000;
 const errorHandler = require("./middlewares/errorHandler");
+require("dotenv").config();
 
 app.use(express.json());
 // para correr node server.js

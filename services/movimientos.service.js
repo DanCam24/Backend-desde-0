@@ -1,27 +1,25 @@
-const movimientos = require("../data/movimientos");
-const AppError = require("../errors/AppError");
+const movimientosRepository = require("../repositories/movimientos.repository");
+const { validarTipoMovimiento } = require("../validators/movimiento.validator");
 
-function crearMovimiento(datos) {
-  const movimiento = {
-    id: movimientos.length + 1,
-    usuarioId: datos.usuarioId,
-    tipo: datos.tipo,
-    valor: datos.valor,
-    fecha: new Date(),
-  };
-  movimientos.push(movimiento);
-  return movimiento;
-}
+async function crearMovimiento(datos, client) {
+  validarTipoMovimiento(datos.tipo);
 
-function obtenerMovimientosUsuario(usuarioId) {
-  const resultado = movimientos.filter(
-    (movimiento) => movimiento.usuarioId == usuarioId
+  return movimientosRepository.crear(
+    {
+      usuarioId: datos.usuarioId,
+      tipo: datos.tipo,
+      valor: datos.valor,
+    },
+    client
   );
-  return resultado;
 }
 
-function obtenerTodos() {
-  return movimientos;
+async function obtenerMovimientosUsuario(usuarioId) {
+  return await movimientosRepository.obtenerMovimientosUsuario(usuarioId);
+}
+
+async function obtenerTodos() {
+  return await movimientosRepository.obtenerTodos();
 }
 
 module.exports = {
