@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../middlewares/auth");
-const validarUsuario = require("../middlewares/validarUsuario");
-const validarId = require("../middlewares/validarId");
+const auth = require("../middlewares/auth.middleware");
+const validarUsuario = require("../middlewares/usuario.middleware");
+const validarId = require("../middlewares/id.middleware");
 const {
   obtenerUsuarios,
   obtenerUsuarioPorId,
@@ -13,9 +13,8 @@ const {
   consignar,
   retirar,
 } = require("../controllers/usuarios.controller");
-const validarConsignacion = require("../middlewares/validarConsignacion");
-const validarRetiro = require("../middlewares/validarRetiro");
-const validarActualizacionUsuario = require("../middlewares/validarActualizacionUsuario");
+const validarConsignacion = require("../middlewares/transaccion.middleware");
+const validarActualizacionUsuario = require("../middlewares/actualizacionUsuario.middleware");
 
 router.get("/", auth, obtenerUsuarios);
 router.get("/:id", auth, validarId, obtenerUsuarioPorId);
@@ -31,6 +30,6 @@ router.delete("/:id", auth, validarId, eliminarUsuario);
 // Operaciones bancarias
 router.get("/:id/saldo", auth, validarId, consultarSaldo);
 router.post("/:id/consignar", auth, validarId, validarConsignacion, consignar);
-router.post("/:id/retirar", auth, validarId, validarRetiro, retirar);
+router.post("/:id/retirar", auth, validarId, validarConsignacion, retirar);
 
 module.exports = router;

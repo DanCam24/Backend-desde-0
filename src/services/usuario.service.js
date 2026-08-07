@@ -1,6 +1,6 @@
-const usuariosRepository = require("../repositories/usuarios.repository");
+const usuariosRepository = require("../repositories/usuario.repository");
 const AppError = require("../errors/AppError");
-const movimientosRepository = require("../repositories/movimientos.repository");
+const movimientosRepository = require("../repositories/movimiento.repository");
 const { executeTransaction } = require("../database/transaction");
 
 async function obtenerTodos(limit, offset) {
@@ -45,7 +45,15 @@ async function consignar(id, valor) {
   return executeTransaction(async (client) => {
     const usuario = await usuariosRepository.obtenerPorIdConBloqueo(id, client);
     if (!usuario) {
-      throw new AppError(404, "Usuario no encontrado");
+      throw new AppError(404, "Usuario no encontrado", {
+        id,
+      });
+    }
+    if (usuario.estado !== "ACTIVO") {
+      throw new AppError(
+        403,
+        "El usuario está deshabilitado y no puede realizar movimientos"
+      );
     }
     const nuevoSaldo = Number(usuario.saldo) + valor;
     await usuariosRepository.actualizarSaldo(id, nuevoSaldo, client);
@@ -71,6 +79,12 @@ async function retirar(id, valor) {
       throw new AppError(404, "Usuario no encontrado", {
         id,
       });
+    }
+    if (usuario.estado !== "ACTIVO") {
+      throw new AppError(
+        403,
+        "El usuario está deshabilitado y no puede realizar movimientos"
+      );
     }
     if (Number(usuario.saldo) < valor) {
       throw new AppError(422, "Saldo insuficiente", {

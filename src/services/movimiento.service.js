@@ -1,4 +1,4 @@
-const movimientosRepository = require("../repositories/movimientos.repository");
+const movimientosRepository = require("../repositories/movimiento.repository");
 
 async function obtenerMovimientosUsuario(usuarioId) {
   return await movimientosRepository.obtenerMovimientosUsuario(usuarioId);

@@ -2,7 +2,7 @@ const {
   crearUsuarioDTO,
   actualizarUsuarioDTO,
 } = require("../dtos/usuario.dto");
-const usuariosService = require("../services/usuarios.service");
+const usuariosService = require("../services/usuario.service");
 
 async function obtenerUsuarios(req, res, next) {
   try {

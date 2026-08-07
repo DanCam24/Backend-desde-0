@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../middlewares/auth");
-const validarId = require("../middlewares/validarId");
+const auth = require("../middlewares/auth.middleware");
+const validarId = require("../middlewares/id.middleware");
 const {
   obtenerMovimientosUsuario,
   obtenerTodos,

@@ -5,10 +5,7 @@ CREATE TABLE movimientos (
     valor NUMERIC(12,2) NOT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT tipo_movimiento_valido
-    CHECK(tipo IN(
-        'CONSIGNACION',
-        'RETIRO'
-    )),
+    CHECK(tipo IN('CONSIGNACION', 'RETIRO')),
     CONSTRAINT valor_positivo
     CHECK(valor > 0),
     CONSTRAINT fk_usuario_movimiento

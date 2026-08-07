@@ -13,11 +13,6 @@ function auth(req, res, next) {
   if (token !== "123456") {
     return next(new AppError(403, "Token inválido."));
   }
-  // Guardamos información del usuario para los siguientes middlewares/controladores
-  req.usuario = {
-    id: 1,
-    nombre: "Administrador",
-  };
   next();
 }
 

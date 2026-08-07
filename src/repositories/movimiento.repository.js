@@ -1,4 +1,4 @@
-const pool = require("../config/database");
+const pool = require("../database/connection");
 
 async function obtenerTodos(limit, offset) {
   const result = await pool.query(
